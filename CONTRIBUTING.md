@@ -9,19 +9,24 @@ This repo is a Nix flake. `nix develop` drops you into a shell with `bats`,
 ## Running tests
 
 ```bash
-nix flake check -L     # builds everything and runs the bats suite in a sandbox
+nix flake check                                  # the authoritative pass/fail signal (matches CI)
+nix log .#checks.<system>.default                # see the bats output from that run
 # or, for faster local iteration on the bats file itself:
 nix develop -c bats tests/
 ```
 
-The `-L` (`--print-build-logs`) flag matters: Nix hides successful build
-output by default, so a plain `nix flake check` prints nothing for the bats
-run even though it happened — `-L` streams it live. Also note that if
-`src/fake-cli.nix` and `tests/` haven't changed since the last check, Nix
-serves the cached (already-passing) result and skips the build entirely, so
-you'll see no bats output at all even with `-L`. To force a real rerun,
-change a test/source file or delete the cached output first:
-`nix-store --delete "$(nix path-info .#checks.<system>.default)"`.
+`nix flake check` doesn't print the bats output to your terminal even
+with `-L`/`--print-build-logs`: in an interactive terminal Nix's progress
+UI clears a build's log lines once that build finishes successfully (only
+a *failing* build's log is kept on screen). This is normal Nix behavior,
+not a bug in the setup — `nix log` sidesteps it by fetching the log
+straight from Nix's build-log store after the fact, which works whether
+the check just built fresh or was served from cache. Replace `<system>`
+with your platform, e.g. `aarch64-darwin` or `x86_64-linux`
+(`nix eval --impure --expr builtins.currentSystem` prints yours). For
+everyday iteration, `nix develop -c bats tests/` is simplest — it runs
+bats directly in your shell instead of inside a Nix build sandbox, so you
+always see live output.
 
 ## Formatting
 
