@@ -6,6 +6,9 @@ every invocation gets logged (argv + stdin, as JSON) to a directory you
 choose, and you can make it emit canned stdout, stderr, and an exit code —
 globally or for one specific call.
 
+## Disclaimer
+This is low effort, vibecoded library. Use at your own risk.
+
 ## Why
 
 There's no mature, Nix-native package for this in the ecosystem. The
